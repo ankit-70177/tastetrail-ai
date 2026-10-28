@@ -32,6 +32,8 @@ export class QlooClient {
     this.timeoutMs = customConfig.timeoutMs ?? config.qloo.timeoutMs ?? 10000;
     this.forceMock = customConfig.forceMock ?? config.mockAi;
     this.fetchFn = customConfig.fetchFn || globalThis.fetch;
+    this.maxRetries = customConfig.maxRetries ?? 1;
+    this.retryBackoffMs = customConfig.retryBackoffMs ?? (process.env.NODE_ENV === 'test' ? 10 : 300);
   }
 
   /**
@@ -65,6 +67,50 @@ export class QlooClient {
     }
     // Fallback safely to place for travel/cultural itineraries
     return 'urn:entity:place';
+  }
+
+  /**
+   * Internal fetch wrapper with timeout and exponential backoff retry for transient 429/503
+   */
+  async _fetchWithRetry(url, options = {}) {
+    const startTime = Date.now();
+    let attempt = 0;
+
+    while (attempt <= this.maxRetries) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), this.timeoutMs);
+
+      try {
+        const response = await this.fetchFn(url, {
+          ...options,
+          headers: this.getHeaders(),
+          signal: controller.signal
+        });
+        clearTimeout(timer);
+
+        // Retry on 429 (rate limit) or 503 (transient service unavailable)
+        if ((response.status === 429 || response.status === 503) && attempt < this.maxRetries) {
+          attempt++;
+          const retryHeader = response.headers?.get?.('retry-after');
+          const delay = retryHeader ? Math.max(10, parseInt(retryHeader, 10) * 1000) : this.retryBackoffMs * Math.pow(2, attempt - 1);
+          await new Promise(r => setTimeout(r, Math.min(delay, 1000)));
+          continue;
+        }
+
+        return { response, error: null, startTime };
+      } catch (err) {
+        clearTimeout(timer);
+        if (err.name === 'AbortError') {
+          return { response: null, error: err, startTime };
+        }
+        if (attempt < this.maxRetries) {
+          attempt++;
+          await new Promise(r => setTimeout(r, this.retryBackoffMs * Math.pow(2, attempt - 1)));
+          continue;
+        }
+        return { response: null, error: err, startTime };
+      }
+    }
   }
 
   /**
@@ -102,19 +148,13 @@ export class QlooClient {
     }
 
     const url = `${this.baseUrl}/search?${params.toString()}`;
-    const startTime = Date.now();
 
     try {
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), this.timeoutMs);
+      const { response, error, startTime } = await this._fetchWithRetry(url, { method: 'GET' });
 
-      const response = await this.fetchFn(url, {
-        method: 'GET',
-        headers: this.getHeaders(),
-        signal: controller.signal
-      });
-
-      clearTimeout(timer);
+      if (error) {
+        return this._handleCatchError(error, 'Search API', startTime);
+      }
 
       if (!response.ok) {
         return this._handleHttpError(response, 'Search API', startTime);
@@ -136,7 +176,7 @@ export class QlooClient {
         total: normalized.length
       };
     } catch (err) {
-      return this._handleCatchError(err, 'Search API', startTime);
+      return this._handleCatchError(err, 'Search API', Date.now());
     }
   }
 
@@ -208,19 +248,12 @@ export class QlooClient {
       url.searchParams.append('sort_by', params.sort_by);
     }
 
-    const startTime = Date.now();
-
     try {
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), this.timeoutMs);
+      const { response, error, startTime } = await this._fetchWithRetry(url.toString(), { method: 'GET' });
 
-      const response = await this.fetchFn(url.toString(), {
-        method: 'GET',
-        headers: this.getHeaders(),
-        signal: controller.signal
-      });
-
-      clearTimeout(timer);
+      if (error) {
+        return this._handleCatchError(error, 'Insights API', startTime);
+      }
 
       if (!response.ok) {
         return this._handleHttpError(response, 'Insights API', startTime);
@@ -249,7 +282,7 @@ export class QlooClient {
         total: normalized.length
       };
     } catch (err) {
-      return this._handleCatchError(err, 'Insights API', startTime);
+      return this._handleCatchError(err, 'Insights API', Date.now());
     }
   }
 

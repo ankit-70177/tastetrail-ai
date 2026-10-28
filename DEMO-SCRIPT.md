@@ -48,6 +48,6 @@
 ---
 
 ### ⏱️ Segment 5: Security, Open Source & Closing (2:15 – 2:30)
-- **On Screen**: Show the clean GitHub repository with MIT License, 23 passing automated tests, and deployment configuration.
+- **On Screen**: Show the clean GitHub repository with MIT License, 28 passing automated tests, and deployment configuration.
 - **Voiceover**:
-  > *"TasteTrail AI is production-ready, open source under the MIT License, tested across 23 automated tests, and runs with zero-leak server-side secret management. Thank you to the Qloo team and Devpost for this hackathon—TasteTrail AI is ready to help you discover what you'll actually love!"*
+  > *"TasteTrail AI is production-ready, open source under the MIT License, tested across 28 automated tests, and runs with zero-leak server-side secret management. Thank you to the Qloo team and Devpost for this hackathon—TasteTrail AI is ready to help you discover what you'll actually love!"*

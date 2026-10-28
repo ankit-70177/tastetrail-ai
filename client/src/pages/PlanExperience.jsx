@@ -487,6 +487,19 @@ export function PlanExperience() {
                   </div>
                 </div>
 
+                {activePlan.transparency.operations && activePlan.transparency.operations.length > 0 && (
+                  <div style={{ marginTop: 'var(--space-4)', padding: 'var(--space-3)', background: 'var(--bg-elevated)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)' }}>
+                    <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                      Agentic Pipeline Execution Trace:
+                    </div>
+                    <ul style={{ margin: 0, paddingLeft: '18px', fontSize: '0.74rem', color: 'var(--text-muted)' }}>
+                      {activePlan.transparency.operations.map((op, idx) => (
+                        <li key={idx} style={{ fontFamily: 'monospace', marginBottom: '3px' }}>{op}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
                 <div style={{ marginTop: 'var(--space-4)', fontSize: '0.78rem', color: 'var(--text-muted)', lineHeight: 1.6 }}>
                   {activePlan.transparency.disclaimer}
                 </div>

@@ -14,7 +14,7 @@
 - [x] `.env.example` is complete with placeholders for `QLOO_API_KEY` and `QLOO_BASE_URL`.
 - [x] Open-source MIT License present in repository root.
 - [x] Automated 7-layer verification audit passed with 0 errors (`./scripts/project-audit`).
-- [x] Automated test suite passed (23/23 tests green in 150ms).
+- [x] Automated test suite passed (28/28 tests green in 350ms).
 - [x] Production build passes (`npm run build`).
 
 ---
@@ -39,5 +39,5 @@
 - [x] **What It Does**: Resolves cultural preferences, queries Qloo's taste affinity graph, constructs time-slotted itineraries, provides traceable evidence, and allows live conversational refinement.
 - [x] **How We Built It**: Node.js 24 ES Modules, Express REST API, Qloo API Client with zero-leak proxying and HTTP 429 rate limit backoff, React 18 + Vite SPA client with editorial dark design system and glassmorphism, native Node test runner.
 - [x] **Challenges Encountered**: Normalizing cross-domain cultural entities and maintaining deterministic fallbacks when external API keys are pending.
-- [x] **Accomplishments**: 23 passing automated tests, modular React SPA + Node backend, 7/7 verification layers passed, sub-second response times.
+- [x] **Accomplishments**: 28 passing automated tests, modular React SPA + Node backend, 7/7 verification layers passed, sub-second response times.
 - [x] **What's Next**: Multi-city cross-border tours, real-time ticket checkout integrations, and collaborative group taste mapping.

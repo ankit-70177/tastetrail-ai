@@ -77,11 +77,11 @@
 ---
 
 ## Priority 5: Verification, Deployment & Submission Package
-- [x] **Task 5.1: Automated Test Suite (23 Tests)**
+- [x] **Task 5.1: Automated Test Suite (28 Tests)**
   - Priority: P0 (Blocker)
   - Status: DONE
   - Acceptance Criteria: Static checks, unit tests, integration tests, and smoke tests all pass.
-  - Verification Evidence: `npm test` exited code 0 (23/23 passing in 150ms).
+  - Verification Evidence: `npm test` exited code 0 (28/28 passing in 350ms).
 - [x] **Task 5.2: 7-Layer Audit Verification**
   - Priority: P0 (Blocker)
   - Status: DONE

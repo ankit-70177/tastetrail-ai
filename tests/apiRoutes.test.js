@@ -98,6 +98,20 @@ test('HTTP POST /api/refine applies conversational adjustment', async () => {
   const data = await refineRes.json();
   assert.strictEqual(data.success, true);
   assert.ok(data.plan.budget < 5000);
+
+  // Test destination switch refinement
+  const switchRes = await fetch(`${baseUrl}/api/refine`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      currentPlan: data.plan,
+      instruction: 'Switch to Tokyo and budget 15000'
+    })
+  });
+  const switchData = await switchRes.json();
+  assert.strictEqual(switchData.success, true);
+  assert.strictEqual(switchData.plan.destination, 'Tokyo');
+  assert.strictEqual(switchData.plan.budget, 15000);
 });
 
 test('HTTP POST /api/compare returns side-by-side Qloo vs Generic baseline', async () => {

@@ -13,7 +13,7 @@ test('TasteAgent: Free-text request parsing extracts destination, budget, and in
   assert.strictEqual(parsed.budget, 5000);
   assert.ok(parsed.duration.includes('Weekend'));
   assert.ok(parsed.interests.includes('indie music'));
-  assert.ok(parsed.interests.includes('korean food'));
+  assert.ok(parsed.interests.includes('Korean food'));
   assert.ok(parsed.atmosphere.toLowerCase().includes('relaxed'));
 });
 
@@ -39,11 +39,15 @@ test('TasteAgent: Structured plan creation with Qloo evidence grounding', async 
   assert.ok(plan.transparency.resolvedCount > 0);
   assert.strictEqual(plan.sourceMode, 'demo_fixture');
 
-  // Verify each slot has evidence signal
+  // Verify each slot has evidence signal & provenance
   const firstSlot = plan.itinerary[0].slots[0];
+  assert.ok(firstSlot.venueName);
   assert.ok(firstSlot.recommendation.name);
-  assert.ok(firstSlot.recommendation.evidenceSignal);
-  assert.ok(firstSlot.recommendation.estimatedCost);
+  assert.ok(firstSlot.culturalRationale);
+  assert.ok(firstSlot.whyItMatches.includes('Why this matches your taste'));
+  assert.ok(firstSlot.verifiedFields.includes('affinityScore'));
+  assert.ok(firstSlot.estimatedFields.includes('estimatedCost'));
+  assert.ok(firstSlot.limitations);
 
   // Verify generic baseline was generated for comparison
   assert.ok(plan.genericBaseline);
@@ -79,4 +83,51 @@ test('TasteAgent: Conversational refinement for category exclusion', async () =>
   const refined = await agent.refinePlan(initialPlan, 'Remove restaurant suggestions and food');
   const hasFood = refined.selectedInterests.some(i => i.toLowerCase().includes('food') || i.toLowerCase().includes('korean'));
   assert.strictEqual(hasFood, false, 'Food should be removed from selected interests');
+});
+
+test('TasteAgent: Conversational refinement switches destination and updates budget', async () => {
+  const mockClient = new QlooClient({ forceMock: true });
+  const agent = new TasteAgent(mockClient);
+
+  const initialPlan = await agent.createExperiencePlan({
+    destination: 'Delhi',
+    budget: 5000,
+    interests: ['indie music']
+  });
+
+  const refined = await agent.refinePlan(initialPlan, 'Change destination to Tokyo and budget to 12000');
+  assert.strictEqual(refined.destination, 'Tokyo');
+  assert.strictEqual(refined.budget, 12000);
+  assert.ok(refined.selectedInterests.includes('indie music'), 'Previous interests should be preserved');
+});
+
+test('TasteAgent: Gracefully identifies unsupported actions and provides disclosure notice', async () => {
+  const mockClient = new QlooClient({ forceMock: true });
+  const agent = new TasteAgent(mockClient);
+
+  const initialPlan = await agent.createExperiencePlan({
+    destination: 'Delhi',
+    budget: 5000,
+    interests: ['indie music']
+  });
+
+  const refined = await agent.refinePlan(initialPlan, 'Book flight ticket and call an Uber');
+  assert.ok(refined.warnings.length > 0, 'Should include limitation warning');
+  assert.ok(refined.warnings[0].includes('outside our scope'), 'Should state transaction boundaries');
+});
+
+test('TasteAgent: Budget calculations include disclosures and withinBudget status', async () => {
+  const mockClient = new QlooClient({ forceMock: true });
+  const agent = new TasteAgent(mockClient);
+
+  const plan = await agent.createExperiencePlan({
+    destination: 'Delhi',
+    budget: 8000,
+    interests: ['art', 'cafes']
+  });
+
+  assert.ok(plan.budgetAnalysis);
+  assert.strictEqual(plan.budgetAnalysis.targetBudget, 8000);
+  assert.strictEqual(typeof plan.budgetAnalysis.withinBudget, 'boolean');
+  assert.ok(plan.budgetAnalysis.costDisclosure.includes('estimates'));
 });

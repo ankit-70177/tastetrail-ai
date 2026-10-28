@@ -77,15 +77,19 @@
 ---
 
 ### Milestone: 2026-10-28 — Submission Package Completion & Git Repository Checkpoint
-- **Summary**: Finalized all project artifacts and submission documentation. Filled all brief requirements in `PROJECT-BRIEF.md`, synchronized test metrics across `README.md`, `SUBMISSION-CHECKLIST.md`, `DEMO-SCRIPT.md`, and `TASKS.md`, re-verified the 7-layer audit and 23 automated tests, and committed the clean codebase to the isolated project Git repository.
+- **Summary**: Finalized all project artifacts and submission documentation. Filled all brief requirements in `PROJECT-BRIEF.md`, synchronized test metrics across `README.md`, `SUBMISSION-CHECKLIST.md`, `DEMO-SCRIPT.md`, and `TASKS.md`, re-verified the 7-layer audit and expanded test suite to 28 automated tests (including exponential backoff retry, timeout handling, destination switching, and out-of-scope constraint disclosures), and verified the clean codebase in the isolated project Git repository.
 - **Files Modified**:
-  - `PROJECT-BRIEF.md`: Replaced all template placeholders with full system architecture, user journey, and track alignments.
-  - `README.md`: Updated test badges and stack documentation reflecting React 18 + Vite SPA and 23 tests.
-  - `SUBMISSION-CHECKLIST.md`: Verified all code, documentation, and live demo requirements.
-  - `DEMO-SCRIPT.md`: Updated script timings and test suite references.
-  - `TASKS.md`: Verified all 12 tasks marked DONE with empirical proof.
+  - `src/config.js`: Multi-path `.env` resolution across working directories.
+  - `.env.example`: Tailored Qloo Hackathon environment guide with `QLOO_API_KEY` instructions.
+  - `src/services/qlooClient.js`: Integrated `_fetchWithRetry` with exponential backoff on HTTP 429 and transient 503, timeout abortion handling, and response normalizers.
+  - `src/services/tasteAgent.js`: Multi-slot intelligent category matching, verified/estimated field tagging, explicit venue disclaimers, destination switching, and transaction scope disclosures.
+  - `client/src/components/TasteCard.jsx`: Flat/nested recommendation resolution, "Why this matches your taste" explanation badge, and URN provenance.
+  - `client/src/components/ComparisonModal.jsx`: Flat/nested resolution for comparative baseline inspection.
+  - `client/src/pages/PlanExperience.jsx`: Expanded Transparency Panel with step-by-step pipeline execution trace.
+  - `package.json`: Added `postinstall` hook for reliable client building on hosting platforms.
+  - `tests/tasteAgent.test.js`, `tests/qlooClient.test.js`, `tests/apiRoutes.test.js`: Expanded test suite to 28 passing tests.
 - **Checks Executed**:
-  1. `npm test`: 23/23 tests passing.
-  2. `npm run build`: Production client bundle built cleanly.
+  1. `npm test`: 28/28 tests passing.
+  2. `npm run build`: Production client bundle built cleanly in 328ms.
   3. `./scripts/project-audit hackathons/tastetrail-ai`: 7/7 verification layers passing.
-- **Project Status**: **SUBMISSION READY** (Classification: SUBMISSION READY / BUILD VERIFIED / TESTS VERIFIED / LIVE READY).
+- **Project Status**: **SUBMISSION READY** (Classification: SUBMISSION READY / BUILD VERIFIED / TESTS VERIFIED / LIVE READY (KEY PENDING)).

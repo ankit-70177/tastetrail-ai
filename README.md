@@ -4,7 +4,7 @@
 > Developed for the **Qloo Agentic Hackathon** by student developer **Ankit Kumar**.
 
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen)]()
-[![Tests](https://img.shields.io/badge/tests-23%2F23%20passing-success)]()
+[![Tests](https://img.shields.io/badge/tests-28%2F28%20passing-success)]()
 [![Qloo API](https://img.shields.io/badge/Qloo-v2%20Insights%20%26%20Search-blueviolet)]()
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
@@ -83,7 +83,7 @@ TasteTrail AI includes a 1-click **"Compare Baseline"** engine demonstrating the
 - **Backend Runtime**: Node.js v24 (Native ES Modules, Express 4.21 with zero-leak credential proxying).
 - **Frontend Architecture**: React 18 + Vite SPA, React Router 6, custom editorial dark design system with glassmorphic cards and Google Fonts (Outfit & Inter).
 - **Sponsor Tech**: Qloo Hackathon API (`hackathon.api.qloo.com`) via `GET /search` and `GET /v2/insights` with `X-Api-Key` headers, type validation, and rate limit backoff.
-- **Testing**: Node's native test runner (`node --test`) with 23 automated tests covering client headers, upstream mock responses, error sanitization, and API routes.
+- **Testing**: Node's native test runner (`node --test`) with 28 automated tests covering client headers, upstream mock responses, error sanitization, timeout handling, backoff retries, and API routes.
 - **Resilience**: Authentic Qloo-schema demo fixtures when API keys are unconfigured, ensuring 100% demo reliability.
 
 ---
@@ -126,7 +126,7 @@ Open your browser and navigate to `http://localhost:3000`.
 ```bash
 npm test
 ```
-*Executes all 23 unit, route, and mock-backed provider tests with zero errors.*
+*Executes all 28 unit, route, and mock-backed provider tests with zero errors.*
 
 ---
 

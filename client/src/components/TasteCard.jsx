@@ -5,43 +5,55 @@ import { useTaste } from '../context/TasteContext.jsx';
 export function TasteCard({ slot, onSelect }) {
   const { isSaved, toggleSaveItem } = useTaste();
 
-  const venueName = slot.venueName || slot.name || 'Curated Spot';
+  // Support both flat slot properties and nested recommendation object
+  const rec = slot.recommendation || slot || {};
+  const venueName = slot.venueName || rec.name || slot.name || 'Curated Cultural Stop';
   const saved = isSaved(venueName);
   
   // Format score: handle 0-1 float or 0-100 integer
-  const rawScore = slot.affinityScore ?? slot.score ?? 0.88;
+  const rawScore = slot.affinityScore ?? rec.affinityScore ?? slot.score ?? rec.score ?? 0.88;
   const scorePercent = rawScore <= 1 ? Math.round(rawScore * 100) : Math.round(rawScore);
+
+  const category = slot.category || rec.category || rec.subtype;
+  const period = slot.period || slot.slotTime || rec.recommendedSlot;
+  const time = slot.time || slot.slotTime;
+  const activity = slot.activity || slot.slotLabel || rec.activity;
+  const description = slot.description || rec.explanation || rec.description;
+  const cost = slot.estimatedCost ?? rec.estimatedCost;
+  const rationale = slot.whyItMatches || slot.culturalRationale || rec.evidenceSignal || rec.explanation;
+  const entityUrn = slot.qlooEntityUrn || rec.entityId || rec.id || rec.urn;
+  const limitations = slot.limitations || rec.limitations || 'Hours and reservations subject to venue policy; verify before visiting.';
 
   return (
     <div className="itinerary-slot card" style={{ position: 'relative' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 'var(--space-3)' }}>
         <div style={{ flex: 1 }}>
-          {slot.period && (
+          {period && (
             <div className="slot-time">
-              {slot.period} {slot.time ? `• ${slot.time}` : ''}
+              {period} {time && time !== period ? `• ${time}` : ''}
             </div>
           )}
           
-          <h4 className="slot-name" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+          <h4 className="slot-name" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginTop: '2px' }}>
             <span>{venueName}</span>
-            {slot.category && (
+            {category && (
               <span className="tag" style={{ fontSize: '0.7rem', padding: '2px 8px' }}>
-                {slot.category}
+                {category}
               </span>
             )}
           </h4>
 
-          {slot.activity && (
-            <div className="slot-label" style={{ fontWeight: 500, color: 'var(--text-secondary)' }}>
-              {slot.activity}
+          {activity && (
+            <div className="slot-label" style={{ fontWeight: 500, color: 'var(--text-secondary)', fontSize: '0.82rem' }}>
+              {activity}
             </div>
           )}
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-          {slot.estimatedCost !== undefined && (
-            <span className="slot-cost" style={{ fontSize: '0.85rem' }}>
-              ₹{Number(slot.estimatedCost).toLocaleString()}
+          {cost !== undefined && (
+            <span className="slot-cost" style={{ fontSize: '0.82rem', whiteSpace: 'nowrap' }}>
+              {typeof cost === 'number' ? `₹${cost.toLocaleString()}` : String(cost)}
             </span>
           )}
 
@@ -49,20 +61,32 @@ export function TasteCard({ slot, onSelect }) {
             type="button"
             onClick={(e) => {
               e.stopPropagation();
-              toggleSaveItem(slot);
+              toggleSaveItem({
+                venueName,
+                name: venueName,
+                category,
+                period,
+                time,
+                activity,
+                description,
+                estimatedCost: cost,
+                affinityScore: rawScore,
+                culturalRationale: rationale,
+                qlooEntityUrn: entityUrn
+              });
             }}
             className={`btn ${saved ? 'btn-primary' : 'btn-secondary'} btn-sm`}
             title={saved ? 'Remove from Saved' : 'Save discovery'}
-            style={{ padding: '6px 10px', fontSize: '0.85rem' }}
+            style={{ padding: '5px 9px', fontSize: '0.82rem' }}
           >
             {saved ? '★ Saved' : '☆ Save'}
           </button>
         </div>
       </div>
 
-      {slot.description && (
-        <p style={{ fontSize: '0.86rem', marginTop: 'var(--space-2)', marginBottom: 'var(--space-3)' }}>
-          {slot.description}
+      {description && (
+        <p style={{ fontSize: '0.86rem', marginTop: 'var(--space-2)', marginBottom: 'var(--space-3)', lineHeight: 1.5 }}>
+          {description}
         </p>
       )}
 
@@ -70,7 +94,7 @@ export function TasteCard({ slot, onSelect }) {
       <div style={{ marginTop: 'var(--space-3)' }}>
         <div className="affinity-bar">
           <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-            Taste Affinity
+            Qloo Taste Affinity
           </span>
           <div className="affinity-track">
             <div 
@@ -82,20 +106,28 @@ export function TasteCard({ slot, onSelect }) {
         </div>
       </div>
 
-      {/* Grounded Cultural Rationale */}
-      {slot.culturalRationale && (
-        <div className="slot-evidence">
-          <span>💡</span>
-          <span>{slot.culturalRationale}</span>
+      {/* Why This Matches Your Taste */}
+      {rationale && (
+        <div className="slot-evidence" style={{ marginTop: 'var(--space-3)' }}>
+          <span style={{ fontSize: '0.9rem' }}>💡</span>
+          <div style={{ fontSize: '0.78rem', lineHeight: 1.4 }}>
+            <strong style={{ color: 'var(--text-primary)' }}>Why this matches your taste: </strong>
+            <span>{rationale}</span>
+          </div>
         </div>
       )}
 
-      {/* Qloo Entity Identifier */}
-      {slot.qlooEntityUrn && (
-        <div style={{ marginTop: '6px', fontSize: '0.68rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>
-          Grounding: {slot.qlooEntityUrn}
+      {/* Provenance and Limitations Meta */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px', flexWrap: 'wrap', gap: '6px' }}>
+        {entityUrn && (
+          <div style={{ fontSize: '0.66rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>
+            URN: {entityUrn}
+          </div>
+        )}
+        <div style={{ fontSize: '0.66rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>
+          * {limitations}
         </div>
-      )}
+      </div>
     </div>
   );
 }

@@ -146,28 +146,33 @@ export function ComparisonModal({ isOpen, onClose, qlooPlan, genericBaseline }) 
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-                {qlooSlots.slice(0, 3).map((slot, idx) => (
-                  <div 
-                    key={idx}
-                    style={{
-                      background: 'var(--bg-elevated)',
-                      border: '1px solid var(--border)',
-                      borderRadius: 'var(--radius-md)',
-                      padding: 'var(--space-3)'
-                    }}
-                  >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--primary-light)' }}>
-                      <span>{slot.period || `Slot ${idx + 1}`}</span>
-                      <span>{Math.round((slot.affinityScore || 0.9) * 100)}% Affinity</span>
+                {qlooSlots.slice(0, 3).map((slot, idx) => {
+                  const name = slot.venueName || slot.name || slot.recommendation?.name || 'Curated Cultural Stop';
+                  const rationale = slot.culturalRationale || slot.whyItMatches || slot.recommendation?.evidenceSignal || slot.description || 'Grounded in Qloo cultural taste graph.';
+                  const score = Math.round((slot.affinityScore ?? slot.recommendation?.affinityScore ?? 0.92) * 100);
+                  return (
+                    <div 
+                      key={idx}
+                      style={{
+                        background: 'var(--bg-elevated)',
+                        border: '1px solid var(--border)',
+                        borderRadius: 'var(--radius-md)',
+                        padding: 'var(--space-3)'
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--primary-light)' }}>
+                        <span>{slot.period || slot.slotLabel || `Slot ${idx + 1}`}</span>
+                        <span>{score}% Affinity</span>
+                      </div>
+                      <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text-primary)', marginTop: '2px' }}>
+                        {name}
+                      </div>
+                      <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                        {rationale}
+                      </div>
                     </div>
-                    <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text-primary)', marginTop: '2px' }}>
-                      {slot.venueName}
-                    </div>
-                    <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
-                      {slot.culturalRationale || slot.description}
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 

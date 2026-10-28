@@ -205,3 +205,54 @@ test('QlooClient: Handles HTTP 404 No Results as empty success', async () => {
   assert.strictEqual(res.status, 404);
   assert.strictEqual(res.results.length, 0);
 });
+
+test('QlooClient: Handles request timeout gracefully', async () => {
+  const mockFetch = async () => {
+    const error = new Error('The operation was aborted');
+    error.name = 'AbortError';
+    throw error;
+  };
+
+  const client = new QlooClient({
+    apiKey: 'mock_key_live',
+    forceMock: false,
+    fetchFn: mockFetch
+  });
+
+  const res = await client.search('timeout_query');
+  assert.strictEqual(res.success, false);
+  assert.ok(res.error.includes('timed out'));
+});
+
+test('QlooClient: Automatically retries on HTTP 429 and succeeds on subsequent attempt', async () => {
+  let callCount = 0;
+  const mockFetch = async () => {
+    callCount++;
+    if (callCount === 1) {
+      return {
+        ok: false,
+        status: 429,
+        headers: { get: () => '0' },
+        text: async () => 'Rate limit exceeded'
+      };
+    }
+    return {
+      ok: true,
+      status: 200,
+      json: async () => ({ results: [{ id: 'urn:place:retry-success', name: 'Retry Venue' }] })
+    };
+  };
+
+  const client = new QlooClient({
+    apiKey: 'mock_key_live',
+    forceMock: false,
+    fetchFn: mockFetch,
+    retryBackoffMs: 5,
+    maxRetries: 1
+  });
+
+  const res = await client.search('retry_test');
+  assert.strictEqual(res.success, true);
+  assert.strictEqual(callCount, 2, 'Should have retried once');
+  assert.strictEqual(res.results[0].name, 'Retry Venue');
+});
