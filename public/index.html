@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TasteTrail AI — Discover What You'll Actually Love</title>
+  <meta name="description" content="Agentic cultural discovery platform powered by Qloo's cross-domain taste intelligence. Experience itineraries personalized to your unique music, culinary, and artistic affinities.">
+  
+  <!-- Modern Typography (Google Fonts: Outfit & Inter) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="nav-container">
+      <div class="brand-group">
+        <a href="/" class="brand-logo" id="nav-brand">
+          <span class="brand-icon">✦</span>
+          <span class="brand-name">TasteTrail<span class="brand-accent">AI</span></span>
+        </a>
+        <div id="mode-badge" class="badge-status badge-demo" title="Data grounding status">
+          <span class="status-dot"></span>
+          <span id="mode-label">Demo Mode (Authentic Qloo Fixtures)</span>
+        </div>
+      </div>
+
+      <nav class="nav-actions">
+        <button id="btn-quick-presets" class="nav-btn" aria-label="Example Prompts">
+          <span>✨ Examples</span>
+        </button>
+        <button id="btn-compare-modal" class="nav-btn" aria-label="Compare Baseline">
+          <span>⚖️ Compare Baseline</span>
+        </button>
+        <button id="btn-inspector" class="nav-btn" aria-label="Qloo API Transparency Inspector">
+          <span>🔍 Qloo Inspector</span>
+        </button>
+        <button id="btn-saved-drawer" class="nav-btn nav-btn-primary" aria-label="Saved Discoveries">
+          <span>🔖 Saved (<span id="saved-counter">0</span>)</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="main-content">
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <div class="hero-badge">Agentic Cultural Discovery • Qloo Hackathon</div>
+      <h1 class="hero-title">Discover What You'll <span class="text-gradient">Actually Love</span></h1>
+      <p class="hero-subtitle">
+        Generic AI recommends whatever is popular. TasteTrail AI grounds every experience in 
+        <strong>Qloo's cultural taste intelligence</strong>, connecting your favorite music, cuisines, and aesthetics to tailored city itineraries.
+      </p>
+
+      <!-- 1-Click Judge Example Chips -->
+      <div class="presets-bar">
+        <span class="presets-label">Quick Prompts:</span>
+        <button class="preset-chip active" data-preset="delhi-indie-korean">
+          🇮🇳 Delhi: Indie Music & Korean Food (₹5,000)
+        </button>
+        <button class="preset-chip" data-preset="tokyo-minimalist-jazz">
+          🇯🇵 Tokyo: Minimalist Art & Jazz (¥15,000)
+        </button>
+        <button class="preset-chip" data-preset="london-vinyl-gastropub">
+          🇬🇧 London: Vinyl & Historic Pubs (£80)
+        </button>
+      </div>
+    </section>
+
+    <!-- Planning & Input Console -->
+    <section class="planner-card">
+      <form id="planner-form" class="planner-form">
+        <div class="prompt-input-wrapper">
+          <label for="prompt-input" class="visually-hidden">Your cultural preferences & destination</label>
+          <textarea 
+            id="prompt-input" 
+            name="prompt" 
+            rows="3" 
+            placeholder="Tell us what you love (e.g. 'I love indie music, Korean food, artistic cafés, and creative neighbourhoods. Plan a weekend in Delhi within ₹5,000. I prefer less crowded places...')"
+            required
+          >I love indie music, Korean food, artistic cafés, and creative neighbourhoods. Plan a weekend in Delhi within ₹5,000. I prefer less crowded places and want experiences that match my personality.</textarea>
+        </div>
+
+        <!-- Structured Quick Tuners -->
+        <div class="tuners-grid">
+          <div class="tuner-item">
+            <label for="input-destination">Destination</label>
+            <input type="text" id="input-destination" value="Delhi" placeholder="e.g. Delhi, Tokyo, London">
+          </div>
+          <div class="tuner-item">
+            <label for="input-budget">Target Budget</label>
+            <input type="number" id="input-budget" value="5000" min="500" step="100">
+          </div>
+          <div class="tuner-item">
+            <label for="input-duration">Duration</label>
+            <select id="input-duration">
+              <option value="Weekend (2 Days)">Weekend (2 Days)</option>
+              <option value="1 Day">1 Day</option>
+              <option value="3 Days">3 Days</option>
+            </select>
+          </div>
+          <div class="tuner-item">
+            <label for="input-atmosphere">Atmosphere</label>
+            <select id="input-atmosphere">
+              <option value="Artistic & Relaxed">Artistic & Relaxed</option>
+              <option value="Vibrant & High Energy">Vibrant & High Energy</option>
+              <option value="Reflective & Intimate">Reflective & Intimate</option>
+              <option value="Eclectic & Alternative">Eclectic & Alternative</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" id="btn-generate" class="btn-primary">
+            <span class="btn-icon">⚡</span>
+            <span class="btn-text">Generate Grounded Experience Plan</span>
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Results Section (Populated dynamically) -->
+    <section id="results-container" class="results-container hidden" aria-live="polite">
+
+      <!-- Plan Header & Budget Overview -->
+      <div class="plan-summary-card">
+        <div class="plan-meta-left">
+          <span class="plan-tag" id="plan-destination-tag">Destination: Delhi</span>
+          <h2 class="plan-heading" id="plan-title">Curated Cultural Journey</h2>
+          <p class="plan-atmosphere-text" id="plan-atmosphere">Vibe: Artistic & Relaxed</p>
+        </div>
+        <div class="plan-meta-right">
+          <div class="budget-pill" id="plan-budget-status">
+            <span class="budget-title">Budget Projection</span>
+            <span class="budget-value" id="budget-range">₹3,400 – ₹4,800</span>
+            <span class="budget-verdict" id="budget-verdict">✓ Within Budget</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Conversational Refinement Console -->
+      <div class="refinement-console">
+        <div class="refinement-header">
+          <span class="refinement-icon">💬</span>
+          <span class="refinement-title">Conversational Refinement</span>
+          <span class="refinement-sub">Refine this plan in real time with agentic taste re-ranking</span>
+        </div>
+        <div class="refinement-chips">
+          <button class="refine-chip" data-instruction="Make it cheaper with lower budget options">📉 Make it cheaper</button>
+          <button class="refine-chip" data-instruction="Add more contemporary art and visual galleries">🎨 More Art & Galleries</button>
+          <button class="refine-chip" data-instruction="Prioritize live independent music and acoustics">🎵 More Live Music</button>
+          <button class="refine-chip" data-instruction="Remove restaurant and dining suggestions">🚫 Skip Restaurant Stops</button>
+          <button class="refine-chip" data-instruction="Make the plan more relaxed and tranquil">🌿 More Relaxed & Quiet</button>
+        </div>
+        <form id="refinement-form" class="refinement-form">
+          <input 
+            type="text" 
+            id="refinement-input" 
+            placeholder="E.g., 'Make it cheaper', 'Add an indie bookstore', 'Swap evening jazz for an acoustic café'..."
+            required
+          >
+          <button type="submit" class="btn-refine">Apply Refinement</button>
+        </form>
+        <div id="refinement-history" class="refinement-history hidden"></div>
+      </div>
+
+      <!-- Personalized Grounding Evidence Strip -->
+      <div class="evidence-strip">
+        <div class="evidence-label">
+          <span class="qloo-symbol">◈</span>
+          <strong>Personalized via Qloo Cultural Intelligence:</strong>
+        </div>
+        <div id="evidence-entities" class="evidence-entities">
+          <!-- Injected dynamically -->
+        </div>
+      </div>
+
+      <!-- Itinerary Timeline Slots -->
+      <div id="itinerary-timeline" class="itinerary-timeline">
+        <!-- Rendered dynamically -->
+      </div>
+    </section>
+
+    <!-- Loading State View -->
+    <div id="loading-state" class="state-overlay hidden">
+      <div class="spinner"></div>
+      <h3 class="loading-title">Resolving Cultural Affinities...</h3>
+      <p class="loading-desc" id="loading-step">Connecting to Qloo Search and Insights engine...</p>
+    </div>
+
+  </main>
+
+  <!-- Qloo API Transparency Inspector Modal -->
+  <div id="modal-inspector" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="inspector-title">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <span class="modal-icon">🔍</span>
+          <h3 id="inspector-title" class="modal-title">Qloo Cultural Intelligence Inspector</h3>
+        </div>
+        <button id="close-inspector" class="modal-close" aria-label="Close Inspector">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="inspector-section">
+          <h4>Active Environment</h4>
+          <div class="info-grid">
+            <div class="info-cell">
+              <span class="cell-label">Operating Mode:</span>
+              <span class="cell-value" id="insp-mode">Demo Mode (Authentic Qloo Fixtures)</span>
+            </div>
+            <div class="info-cell">
+              <span class="cell-label">Base URL:</span>
+              <span class="cell-value" id="insp-url">https://hackathon.api.qloo.com</span>
+            </div>
+            <div class="info-cell">
+              <span class="cell-label">API Key Status:</span>
+              <span class="cell-value" id="insp-key-status">Key Protected Server-Side</span>
+            </div>
+            <div class="info-cell">
+              <span class="cell-label">Last Query Latency:</span>
+              <span class="cell-value" id="insp-latency">42 ms</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="inspector-section">
+          <h4>Agentic Execution Trace</h4>
+          <ul id="insp-operations" class="trace-list">
+            <li>Awaiting first planning request...</li>
+          </ul>
+        </div>
+
+        <div class="inspector-section">
+          <h4>Security & Data Policy</h4>
+          <p class="policy-note">
+            In compliance with hackathon security standards, Qloo API credentials reside exclusively in server-side environment variables and are never transmitted to client bundles or browser sessions.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Side-by-Side Baseline Comparison Modal -->
+  <div id="modal-compare" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="compare-title">
+    <div class="modal-card modal-large">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <span class="modal-icon">⚖️</span>
+          <h3 id="compare-title" class="modal-title">Why Qloo Matters: Cultural Intelligence vs Generic Baseline</h3>
+        </div>
+        <button id="close-compare" class="modal-close" aria-label="Close Comparison">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="compare-grid">
+          <!-- Column 1: Generic Baseline -->
+          <div class="compare-column column-baseline">
+            <div class="compare-col-header">
+              <span class="col-badge badge-unpersonalized">Generic Baseline</span>
+              <h4>Popularity Heuristic Only</h4>
+              <p class="col-desc">Standard travel websites rank solely by tourist search volume, returning mainstream landmarks.</p>
+            </div>
+            <div id="compare-baseline-content" class="compare-items">
+              <!-- Dynamically injected -->
+            </div>
+          </div>
+
+          <!-- Column 2: Qloo Grounded -->
+          <div class="compare-column column-qloo">
+            <div class="compare-col-header">
+              <span class="col-badge badge-qloo">TasteTrail AI (Qloo Grounded)</span>
+              <h4>Cross-Domain Taste Affinity</h4>
+              <p class="col-desc">Qloo connects specific music, dining, and artistic affinities to unearth non-obvious cultural places.</p>
+            </div>
+            <div id="compare-qloo-content" class="compare-items">
+              <!-- Dynamically injected -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Saved Discoveries Drawer -->
+  <div id="drawer-saved" class="drawer-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="saved-drawer-title">
+    <div class="drawer-card">
+      <div class="drawer-header">
+        <h3 id="saved-drawer-title" class="drawer-title">🔖 Saved Discoveries</h3>
+        <button id="close-saved" class="modal-close" aria-label="Close Saved Drawer">&times;</button>
+      </div>
+      <div class="drawer-body">
+        <div id="saved-items-list" class="saved-items-list">
+          <div class="empty-state">
+            <span class="empty-icon">📂</span>
+            <p>No saved discoveries yet. Click the bookmark icon on any recommendation to save it.</p>
+          </div>
+        </div>
+      </div>
+      <div class="drawer-footer">
+        <button id="btn-export-saved" class="btn-secondary">Export to JSON</button>
+        <button id="btn-clear-saved" class="btn-danger-outline">Clear All</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-left">
+        <p><strong>TasteTrail AI</strong> — Built for the <strong>Qloo Agentic Hackathon</strong> by student developer Ankit Kumar.</p>
+        <p class="footer-sub">Grounded in Qloo Cultural Intelligence • Open Source under MIT License</p>
+      </div>
+      <div class="footer-right">
+        <a href="https://docs.qloo.com" target="_blank" rel="noopener noreferrer">Qloo Docs</a>
+        <a href="https://hackathon.api.qloo.com" target="_blank" rel="noopener noreferrer">API Portal</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>
