@@ -27,17 +27,23 @@ export class TasteAgent {
     const cleanInterests = Array.isArray(interests)
       ? interests.filter(i => typeof i === 'string' && i.trim().length > 0)
       : typeof interests === 'string'
-      ? interests.split(',').map(s => s.trim()).filter(Boolean)
-      : ['indie music', 'art', 'food'];
+        ? interests.split(',').map(s => s.trim()).filter(Boolean)
+        : [];
+
+    if (cleanInterests.length === 0) {
+      cleanInterests.push('indie music', 'art', 'food');
+    }
 
     return {
       destination: (destination || 'Delhi').trim(),
       budget: Number(budget) || 5000,
       duration: (duration || 'Weekend (2 Days)').trim(),
       atmosphere: (atmosphere || 'Artistic & Relaxed').trim(),
-      interests: cleanInterests.length > 0 ? cleanInterests : ['indie music', 'art', 'culture'],
+      interests: cleanInterests,
       notes: (notes || '').trim()
     };
+
+
   }
 
   /**
@@ -58,7 +64,7 @@ export class TasteAgent {
     for (const interest of preferences.interests) {
       trace.qlooCalls += 1;
       const searchRes = await this.client.search(interest);
-      
+
       if (searchRes.success && searchRes.results.length > 0) {
         const topEntity = searchRes.results[0];
         const entityUrn = topEntity.id || topEntity.urn || `urn:entity:${encodeURIComponent(interest)}`;
@@ -112,12 +118,12 @@ export class TasteAgent {
       atmosphere: preferences.atmosphere,
       selectedInterests: preferences.interests,
       sourceMode: insightsRes.sourceMode || (this.client.isLive() ? 'live_qloo' : 'demo_fixture'),
-      
+
       // Grounded Output
       itinerary,
       budgetAnalysis,
       recommendations,
-      
+
       // Transparency & Provenance
       personalizationEvidence: trace.resolvedEntities,
       transparency: {
@@ -230,7 +236,7 @@ export class TasteAgent {
 
     // Re-run the planning pipeline with updated constraints
     const refinedPlan = await this.createExperiencePlan(updatedPreferences);
-    
+
     refinedPlan.refinementHistory = [
       ...(currentPlan.refinementHistory || []),
       {
@@ -250,7 +256,7 @@ export class TasteAgent {
 
   _parseFreeText(text) {
     const lower = text.toLowerCase();
-    
+
     // Extract Destination
     let destination = 'Delhi';
     if (lower.includes('mumbai')) destination = 'Mumbai';
@@ -308,27 +314,27 @@ export class TasteAgent {
 
   _buildStructuredItinerary(recommendations, preferences) {
     const slotDefinitions = [
-      { 
-        id: 'morning', 
-        label: 'Morning Exploration', 
+      {
+        id: 'morning',
+        label: 'Morning Exploration',
         time: '10:00 AM – 1:00 PM',
         preferredCategories: ['art', 'museum', 'gallery', 'heritage', 'culture', 'park', 'architecture']
       },
-      { 
-        id: 'afternoon', 
-        label: 'Midday Flavors & Cultural Immersion', 
+      {
+        id: 'afternoon',
+        label: 'Midday Flavors & Cultural Immersion',
         time: '1:30 PM – 4:00 PM',
         preferredCategories: ['food', 'restaurant', 'dining', 'culinary', 'korean', 'lunch', 'market']
       },
-      { 
-        id: 'late_afternoon', 
-        label: 'Artisan Leisure & Coffee', 
+      {
+        id: 'late_afternoon',
+        label: 'Artisan Leisure & Coffee',
         time: '4:30 PM – 6:30 PM',
         preferredCategories: ['cafe', 'coffee', 'bookstore', 'bakery', 'tea', 'record shop', 'artisan']
       },
-      { 
-        id: 'evening', 
-        label: 'Twilight Acoustics & Nightlife', 
+      {
+        id: 'evening',
+        label: 'Twilight Acoustics & Nightlife',
         time: '7:30 PM – 10:30 PM',
         preferredCategories: ['music', 'jazz', 'nightlife', 'bar', 'cocktail', 'lounge', 'speakeasy', 'acoustics']
       }
@@ -398,7 +404,7 @@ export class TasteAgent {
 
         const venueName = finalItem.name || 'Curated Cultural Venue';
         const rationale = finalItem.evidenceSignal || finalItem.explanation || `Affinity match via Qloo Cultural Graph.`;
-        const whyItMatches = finalItem.evidenceSignal 
+        const whyItMatches = finalItem.evidenceSignal
           ? `Why this matches your taste: Grounded via ${finalItem.evidenceSignal}`
           : `Why this matches your taste: Aligns with your ${preferences.atmosphere} preference and regional cultural signals.`;
 
@@ -460,14 +466,21 @@ export class TasteAgent {
 
     const avgEstimate = Math.round((estimatedTotalMin + estimatedTotalMax) / 2);
     const withinBudget = avgEstimate <= targetBudget;
+    const remaining = targetBudget - avgEstimate;
 
     return {
+      // Primary numeric fields consumed by frontend budget meter
+      allocatedBudget: targetBudget,
+      totalEstimatedCost: avgEstimate,
+      remainingBudget: remaining,
+
+      // Existing & backward-compatible fields
       targetBudget,
-      estimatedRange: `₹${estimatedTotalMin.toLocaleString()} – ₹${estimatedTotalMax.toLocaleString()}`,
       averageEstimatedSpend: avgEstimate,
+      remainingOrOver: remaining,
+      estimatedRange: `₹${estimatedTotalMin.toLocaleString()} – ₹${estimatedTotalMax.toLocaleString()}`,
       withinBudget,
       isWithinBudget: withinBudget,
-      remainingOrOver: targetBudget - avgEstimate,
       status: withinBudget ? 'Within Budget' : 'Exceeds Target Budget (Review Low-Cost Filters)',
       costDisclosure: "All costs are estimates based on standard ticket admissions and average dining covers. Actual expenditures depend on menu choices and seasonal rates."
     };

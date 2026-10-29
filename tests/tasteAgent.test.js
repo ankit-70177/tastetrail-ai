@@ -128,6 +128,10 @@ test('TasteAgent: Budget calculations include disclosures and withinBudget statu
 
   assert.ok(plan.budgetAnalysis);
   assert.strictEqual(plan.budgetAnalysis.targetBudget, 8000);
+  assert.strictEqual(plan.budgetAnalysis.allocatedBudget, 8000);
+  assert.strictEqual(typeof plan.budgetAnalysis.totalEstimatedCost, 'number');
+  assert.strictEqual(typeof plan.budgetAnalysis.remainingBudget, 'number');
+  assert.strictEqual(plan.budgetAnalysis.remainingBudget, 8000 - plan.budgetAnalysis.totalEstimatedCost);
   assert.strictEqual(typeof plan.budgetAnalysis.withinBudget, 'boolean');
   assert.ok(plan.budgetAnalysis.costDisclosure.includes('estimates'));
 });

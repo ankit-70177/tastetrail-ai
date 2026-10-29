@@ -60,7 +60,7 @@ export function PlanExperience() {
       setAtmosphere(p.atmosphere);
       setDuration(p.duration);
       setInterests(p.interests);
-      setPrompt(`${p.duration} in ${p.destination} focusing on ${p.interests.join(', ')} under ₹${p.budget.toLocaleString()}`);
+      setPrompt(`${p.duration} in ${p.destination} focusing on ${(p.interests || []).join(', ')} under ₹${(p.budget ?? 5000).toLocaleString()}`);
       
       // Auto-trigger plan generation for seamless 1-click experience
       handleGenerate({
@@ -324,10 +324,12 @@ export function PlanExperience() {
                 <div style={{ marginTop: 'var(--space-5)', paddingTop: 'var(--space-5)', borderTop: '1px solid var(--border)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', marginBottom: '4px' }}>
                     <span>
-                      Estimated Cost: <strong>₹{budgetBreakdown.totalEstimatedCost.toLocaleString()}</strong> of ₹{budgetBreakdown.allocatedBudget.toLocaleString()}
+                      Estimated Cost: <strong>₹{(budgetBreakdown.totalEstimatedCost ?? budgetBreakdown.averageEstimatedSpend ?? 0).toLocaleString()}</strong> of ₹{(budgetBreakdown.allocatedBudget ?? budgetBreakdown.targetBudget ?? 0).toLocaleString()}
                     </span>
                     <span style={{ color: isOverBudget ? 'var(--error)' : 'var(--success)', fontWeight: 600 }}>
-                      {isOverBudget ? `Over by ₹${Math.abs(budgetBreakdown.remainingBudget).toLocaleString()}` : `₹${budgetBreakdown.remainingBudget.toLocaleString()} remaining`}
+                      {isOverBudget 
+                        ? `Over by ₹${Math.abs(budgetBreakdown.remainingBudget ?? budgetBreakdown.remainingOrOver ?? 0).toLocaleString()}` 
+                        : `₹${(budgetBreakdown.remainingBudget ?? budgetBreakdown.remainingOrOver ?? 0).toLocaleString()} remaining`}
                     </span>
                   </div>
 
@@ -335,7 +337,7 @@ export function PlanExperience() {
                     <div 
                       className={`budget-fill ${isOverBudget ? 'budget-over' : 'budget-ok'}`}
                       style={{ 
-                        width: `${Math.min(100, (budgetBreakdown.totalEstimatedCost / budgetBreakdown.allocatedBudget) * 100)}%` 
+                        width: `${Math.min(100, Math.max(0, ((budgetBreakdown.totalEstimatedCost ?? budgetBreakdown.averageEstimatedSpend ?? 0) / Math.max(1, (budgetBreakdown.allocatedBudget ?? budgetBreakdown.targetBudget ?? 1))) * 100))}%` 
                       }}
                     />
                   </div>
